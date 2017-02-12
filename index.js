@@ -13,6 +13,7 @@ Promise.promisifyAll(fs);
 
 fs.writeFileAsync(path.join(GPIO_PATH, 'export'), '')
     .then(() => {
+        console.log('Watching export file');
         fs.watch(path.join(GPIO_PATH, 'export'), (event, file) => {
             if (event === 'change') {
                 fs.readFileAsync(file)
