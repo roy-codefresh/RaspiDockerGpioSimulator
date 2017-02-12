@@ -16,7 +16,7 @@ fs.writeFileAsync(path.join(GPIO_PATH, 'export'), '')
         console.log('Watching export file');
         fs.watch(path.join(GPIO_PATH, 'export'), (event, file) => {
             if (event === 'change') {
-                fs.readFileAsync(file)
+                fs.readFileAsync(path.join(GPIO_PATH, file))
                     .tap(id => fs.mkdirAsync(path.join(GPIO_PATH, `gpio${id}`)))
                     .tap(function waitForAccess(id) {
                         return fs.accessAsync(path.join(GPIO_PATH, `gpio${id}`, 'direction'))
