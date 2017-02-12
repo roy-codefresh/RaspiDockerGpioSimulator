@@ -23,8 +23,9 @@ fs.writeFileAsync(path.join(GPIO_PATH, 'export'), '')
         fs.watch(path.join(GPIO_PATH, 'export'), (event, file) => {
             if (event === 'change') {
                 fs.readFileAsync(path.join(GPIO_PATH, file))
-                    .tap(id => fs.mkdirAsync(path.join(GPIO_PATH, `gpio${id}`)).catch(ignoreFileExists))
-                    .tap(id => fs.writeFileAsync(path.join(GPIO_PATH, `gpio${id}`, 'value'), '0'))
+                    .tap(id => fs.mkdirAsync(path.join(GPIO_PATH, `_gpio${id}`)).catch(ignoreFileExists))
+                    .tap(id => fs.writeFileAsync(path.join(GPIO_PATH, `_gpio${id}`, 'value'), '0'))
+                    .tap(id => fs.renameAsync(path.join(GPIO_PATH, `_gpio${id}`), path.join(GPIO_PATH, `gpio${id}`))
                     .tap(function waitForAccess(id) {
                         return fs.accessAsync(path.join(GPIO_PATH, `gpio${id}`, 'direction'))
                             .catch(() => Promise.delay(500).then(() => waitForAccess(id)))
