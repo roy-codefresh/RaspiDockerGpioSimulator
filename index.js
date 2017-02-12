@@ -16,21 +16,23 @@ fs.writeFileAsync(path.join(GPIO_PATH, 'export'), '')
         fs.watch(path.join(GPIO_PATH, 'export'), (event, file) => {
             if (event === 'change') {
                 fs.readFileAsync(file)
-                    .tap(value => fs.mkdirAsync(path.join(GPIO_PATH, `gpio${value}`)))
-                    .tap(function waitForAccess(value) {
-                        return fs.accessAsync(path.join(GPIO_PATH, `gpio${value}`, 'direction'))
-                            .catch(() => Promise.delay(500).then(() => waitForAccess(value)))
+                    .tap(id => fs.mkdirAsync(path.join(GPIO_PATH, `gpio${id}`)))
+                    .tap(function waitForAccess(id) {
+                        return fs.accessAsync(path.join(GPIO_PATH, `gpio${id}`, 'direction'))
+                            .catch(() => Promise.delay(500).then(() => waitForAccess(id)))
                     })
             }
         })
     });
 
-app.post('/led', function (req, res) {
-    let value = req.body.value;
-    console.log(value);
-    res.send();
+app.get('/output/:id', function (req, res) {
+    let id = req.params.id;
+    fs.readFileAsync(path.join(GPIO_PATH, `gpio${id}`, 'value'))
+        .then(Number)
+        .then(value => res.json(value))
+        .catch(() => res.status(500).send())
 });
 
 app.listen(4500, function () {
-    console.log('Example app listening on port 3000!')
+    console.log('Example app listening on port 4500!')
 });
