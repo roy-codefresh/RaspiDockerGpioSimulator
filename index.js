@@ -9,6 +9,12 @@ let app = express();
 
 const GPIO_PATH='/gpio';
 
+let ignoreFileExists = err => {
+    if (err.code !== 'EEXIST') {
+        throw err;
+    }
+};
+
 Promise.promisifyAll(fs);
 
 fs.writeFileAsync(path.join(GPIO_PATH, 'export'), '')
@@ -17,12 +23,8 @@ fs.writeFileAsync(path.join(GPIO_PATH, 'export'), '')
         fs.watch(path.join(GPIO_PATH, 'export'), (event, file) => {
             if (event === 'change') {
                 fs.readFileAsync(path.join(GPIO_PATH, file))
-                    .tap(id => fs.mkdirAsync(path.join(GPIO_PATH, `gpio${id}`))
-                        .catch(err => {
-                            if (err.code !== 'EEXIST') {
-                                throw err;
-                            }
-                        }))
+                    .tap(id => fs.mkdirAsync(path.join(GPIO_PATH, `gpio${id}`)).catch(ignoreFileExists))
+                    .tap(id => fs.writeFileAsync(path.join(GPIO_PATH, `gpio${id}`, 'value'), '0'))
                     .tap(function waitForAccess(id) {
                         return fs.accessAsync(path.join(GPIO_PATH, `gpio${id}`, 'direction'))
                             .catch(() => Promise.delay(500).then(() => waitForAccess(id)))
