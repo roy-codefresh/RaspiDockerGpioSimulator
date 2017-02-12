@@ -25,7 +25,7 @@ fs.writeFileAsync(path.join(GPIO_PATH, 'export'), '')
         })
     });
 
-app.get('/output/:id', function (req, res) {
+app.get('/out/:id', function (req, res) {
     let id = req.params.id;
     fs.readFileAsync(path.join(GPIO_PATH, `gpio${id}`, 'value'))
         .then(Number)
