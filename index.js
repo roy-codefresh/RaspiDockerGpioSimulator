@@ -22,7 +22,7 @@ fs.writeFileAsync(path.join(GPIO_PATH, 'export'), '')
         console.log('Watching export file');
         fs.watch(path.join(GPIO_PATH, 'export'), (event, file) => {
             if (event === 'change') {
-                fs.readFileAsync(path.join(GPIO_PATH, file))
+                fs.readFileAsync(path.join(GPIO_PATH, file), 'utf-8')
                     .then(data => parseInt(data.trim()))
                     .tap(id => fs.mkdirAsync(path.join(GPIO_PATH, `_gpio${id}`)).catch(ignoreFileExists))
                     .tap(id => fs.writeFileAsync(path.join(GPIO_PATH, `_gpio${id}`, 'value'), '0'))
