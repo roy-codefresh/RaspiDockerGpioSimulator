@@ -17,7 +17,12 @@ fs.writeFileAsync(path.join(GPIO_PATH, 'export'), '')
         fs.watch(path.join(GPIO_PATH, 'export'), (event, file) => {
             if (event === 'change') {
                 fs.readFileAsync(path.join(GPIO_PATH, file))
-                    .tap(id => fs.mkdirAsync(path.join(GPIO_PATH, `gpio${id}`)))
+                    .tap(id => fs.mkdirAsync(path.join(GPIO_PATH, `gpio${id}`))
+                        .catch(err => {
+                            if (err.code !== 'EEXIST') {
+                                throw err;
+                            }
+                        }))
                     .tap(function waitForAccess(id) {
                         return fs.accessAsync(path.join(GPIO_PATH, `gpio${id}`, 'direction'))
                             .catch(() => Promise.delay(500).then(() => waitForAccess(id)))
